@@ -1,0 +1,213 @@
+solving under config: restart False, bcr False, ub False, min True
+1
+need to add more rules
+1
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+2
+need to add more rules
+2
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+3
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+4
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+5
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+6
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+7
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+8
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+9
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+10
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+11
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+12
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+13
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+14
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+15
+need to add more rules
+15
+need to add more rules
+15
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+16
+need to add more rules
+16
+need to add more rules
+16
+need to add more rules
+16
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+17
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+18
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+19
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+20
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+21
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+22
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+23
+need to add more rules
+23
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+24
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+25
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+26
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+27
+need to add more rules
+27
+need to add more rules
+27
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+28
+need to add more rules
+28
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+29
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+30
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+31
+find trace
+22 23
+A better result may exist
+31
+find trace
+23 23
+31
+need to add more rules
+31
+find trace
+23 23
+@0 Collect(subject=4, pid=0, pvalue=37, purpose=0)
+@1 Collect(subject=6, pid=1, pvalue=0, purpose=2)
+@2 Collect(subject=8, pid=2, pvalue=0, purpose=2)
+@3 Collect(subject=7, pid=3, pvalue=36, purpose=2)
+@4 Collect(subject=0, pid=4, pvalue=0, purpose=0)
+@5 Collect(subject=1, pid=5, pvalue=0, purpose=0)
+@6 Collect(subject=11, pid=6, pvalue=0, purpose=0)
+@7 Collect(subject=9, pid=7, pvalue=0, purpose=0)
+@8 Collect(subject=10, pid=8, pvalue=0, purpose=0)
+@9 Collect(subject=2, pid=9, pvalue=0, purpose=0)
+@10 Collect(subject=12, pid=10, pvalue=0, purpose=0)
+@11 Collect(subject=5, pid=11, pvalue=0, purpose=2)
+@12 Collect(subject=13, pid=12, pvalue=0, purpose=0)
+@13 Requested_Update(subject=3, pid=13, pvalue=112)
+@13 Requested_Update(subject=3, pid=13, pvalue=111)
+@13 Requested_Update(subject=3, pid=13, pvalue=112)
+@13 Requested_Update(subject=3, pid=13, pvalue=111)
+@13 Collect(subject=3, pid=13, pvalue=35, purpose=1)
+@14 Update(subject=3, pid=13, pvalue=112)
+@14 Update(subject=3, pid=13, pvalue=111)
+@15 Update(subject=3, pid=13, pvalue=111)
+@15 Update(subject=3, pid=13, pvalue=112)
+@16 Update(subject=3, pid=13, pvalue=111)
+@16 Update(subject=3, pid=13, pvalue=112)
+@17 Erase(subject=3, pid=13)
+opt vol is 23
+solution is opt
+11.080467939376831

@@ -1,0 +1,56 @@
+Input || R0 || EXISTS p_Erase_3: Erase. (p_Erase_3_presence & ((p_Erase_3_pid = 10) & (0 <= p_Erase_3_time)))
+Def || L1 || c0 <-> EXISTS p_Erase_3: Erase. (p_Erase_3_presence & ((p_Erase_3_pid = 10) & (0 <= p_Erase_3_time)))
+DeriveFact || F0 || c0 || L1 R0
+Input || R4 || Forall p_Collect_2: Collect. ( (! p_Collect_2_presence) | Forall p_Collect_10: Collect. ( (! p_Collect_10_presence) | ((! (p_Collect_10_time < p_Collect_2_time)) | (p_Collect_10_pid < p_Collect_2_pid))))
+Def || L9 || c4 <-> Forall p_Collect_2: Collect. ( (! p_Collect_2_presence) | Forall p_Collect_10: Collect. ( (! p_Collect_10_presence) | ((! (p_Collect_10_time < p_Collect_2_time)) | (p_Collect_10_pid < p_Collect_2_pid))))
+DeriveFact || F4 || c4 || L9 R4
+Input || R13 || Forall p_Erase_0: Erase. ( (! p_Erase_0_presence) | EXISTS p_Collect_17: Collect. (p_Collect_17_presence & ((p_Collect_17_time < p_Erase_0_time) & (p_Collect_17_pid = p_Erase_0_pid) & (p_Collect_17_subject = p_Erase_0_subject))))
+Def || L27 || c13 <-> Forall p_Erase_0: Erase. ( (! p_Erase_0_presence) | EXISTS p_Collect_17: Collect. (p_Collect_17_presence & ((p_Collect_17_time < p_Erase_0_time) & (p_Collect_17_pid = p_Erase_0_pid) & (p_Collect_17_subject = p_Erase_0_subject))))
+DeriveFact || F13 || c13 || L27 R13
+Input || R18 || Forall p_Erase_2: Erase. ( (! p_Erase_2_presence) | EXISTS p_Collect_20: Collect. (p_Collect_20_presence & ((p_Collect_20_pid = p_Erase_2_pid) & (p_Collect_20_time <= p_Erase_2_time) & (! EXISTS p_Erase_7: Erase. (p_Erase_7_presence & ((p_Erase_2_pid = p_Erase_7_pid) & (p_Collect_20_time < p_Erase_7_time) & (p_Erase_7_time <= p_Erase_2_time)))))))
+Def || L37 || c18 <-> Forall p_Erase_2: Erase. ( (! p_Erase_2_presence) | EXISTS p_Collect_20: Collect. (p_Collect_20_presence & ((p_Collect_20_pid = p_Erase_2_pid) & (p_Collect_20_time <= p_Erase_2_time) & (! EXISTS p_Erase_7: Erase. (p_Erase_7_presence & ((p_Erase_2_pid = p_Erase_7_pid) & (p_Collect_20_time < p_Erase_7_time) & (p_Erase_7_time <= p_Erase_2_time)))))))
+DeriveFact || F18 || c18 || L37 R18
+DeriveLemma || EI L1  [p_Erase_3:Erase<-Erase_0] || L38 || c0 -> (Erase_0_presence & ((Erase_0_pid = 10) & (0 <= Erase_0_time))) || L1
+AddFact || F19 || c19 <-> (Erase_0_presence & ((Erase_0_pid = 10) & (0 <= Erase_0_time)))
+DeriveFact || F20 || c0 -> c19 || F19 L38
+DeriveLemma || UI L27  [p_Erase_0:Erase<-Erase_0] || L43 || c13 -> ((! Erase_0_presence) | EXISTS p_Collect_24: Collect. (p_Collect_24_presence & ((p_Collect_24_time < Erase_0_time) & (p_Collect_24_pid = Erase_0_pid) & (p_Collect_24_subject = Erase_0_subject)))) || L27 L38
+Def || L44 || c23 <-> ((! Erase_0_presence) | EXISTS p_Collect_24: Collect. (p_Collect_24_presence & ((p_Collect_24_time < Erase_0_time) & (p_Collect_24_pid = Erase_0_pid) & (p_Collect_24_subject = Erase_0_subject))))
+DeriveFact || F23 || c13 -> c23 || L44 L43
+AddFact || F24 || c24 <-> (! Erase_0_presence)
+Def || L45 || c25 <-> EXISTS p_Collect_24: Collect. (p_Collect_24_presence & ((p_Collect_24_time < Erase_0_time) & (p_Collect_24_pid = Erase_0_pid) & (p_Collect_24_subject = Erase_0_subject)))
+DeriveFact || F25 || c23 -> (c24 | c25) || F24 L45 L44
+DeriveLemma || EI L45  [p_Collect_24:Collect<-t_Collect_0] || L46 || c25 -> (t_Collect_0_presence & ((t_Collect_0_time < Erase_0_time) & (t_Collect_0_pid = Erase_0_pid) & (t_Collect_0_subject = Erase_0_subject))) || L45
+AddFact || F26 || c26 <-> (t_Collect_0_presence & ((t_Collect_0_time < Erase_0_time) & (t_Collect_0_pid = Erase_0_pid) & (t_Collect_0_subject = Erase_0_subject)))
+DeriveFact || F27 || c25 -> c26 || F26 L46
+DeriveLemma || UI L37  [p_Erase_2:Erase<-Erase_0] || L60 || c18 -> ((! Erase_0_presence) | EXISTS p_Collect_25: Collect. (p_Collect_25_presence & ((p_Collect_25_pid = Erase_0_pid) & (p_Collect_25_time <= Erase_0_time) & (! EXISTS p_Erase_8: Erase. (p_Erase_8_presence & ((Erase_0_pid = p_Erase_8_pid) & (p_Collect_25_time < p_Erase_8_time) & (p_Erase_8_time <= Erase_0_time))))))) || L37 L38
+Def || L61 || c43 <-> ((! Erase_0_presence) | EXISTS p_Collect_25: Collect. (p_Collect_25_presence & ((p_Collect_25_pid = Erase_0_pid) & (p_Collect_25_time <= Erase_0_time) & (! EXISTS p_Erase_8: Erase. (p_Erase_8_presence & ((Erase_0_pid = p_Erase_8_pid) & (p_Collect_25_time < p_Erase_8_time) & (p_Erase_8_time <= Erase_0_time)))))))
+DeriveFact || F44 || c18 -> c43 || L61 L60
+Def || L62 || c44 <-> EXISTS p_Collect_25: Collect. (p_Collect_25_presence & ((p_Collect_25_pid = Erase_0_pid) & (p_Collect_25_time <= Erase_0_time) & (! EXISTS p_Erase_8: Erase. (p_Erase_8_presence & ((Erase_0_pid = p_Erase_8_pid) & (p_Collect_25_time < p_Erase_8_time) & (p_Erase_8_time <= Erase_0_time))))))
+DeriveFact || F45 || c43 -> (c24 | c44) || F24 L62 L61
+DeriveLemma || EI L62  [p_Collect_25:Collect<-t_Collect_1] || L63 || c44 -> (t_Collect_1_presence & ((t_Collect_1_pid = Erase_0_pid) & (t_Collect_1_time <= Erase_0_time) & (! EXISTS p_Erase_9: Erase. (p_Erase_9_presence & ((Erase_0_pid = p_Erase_9_pid) & (t_Collect_1_time < p_Erase_9_time) & (p_Erase_9_time <= Erase_0_time)))))) || L62
+Def || L64 || c45 <-> (t_Collect_1_presence & ((t_Collect_1_pid = Erase_0_pid) & (t_Collect_1_time <= Erase_0_time) & (! EXISTS p_Erase_9: Erase. (p_Erase_9_presence & ((Erase_0_pid = p_Erase_9_pid) & (t_Collect_1_time < p_Erase_9_time) & (p_Erase_9_time <= Erase_0_time))))))
+DeriveFact || F46 || c44 -> c45 || L64 L63
+AddFact || F47 || c46 <-> t_Collect_1_presence
+Def || L65 || c47 <-> ((t_Collect_1_pid = Erase_0_pid) & (t_Collect_1_time <= Erase_0_time) & (! EXISTS p_Erase_9: Erase. (p_Erase_9_presence & ((Erase_0_pid = p_Erase_9_pid) & (t_Collect_1_time < p_Erase_9_time) & (p_Erase_9_time <= Erase_0_time)))))
+DeriveFact || F48 || c45 -> (c46 & c47) || F47 L65 L64
+AddFact || F49 || c48 <-> (t_Collect_1_pid = Erase_0_pid)
+AddFact || F50 || c49 <-> (t_Collect_1_time <= Erase_0_time)
+Def || L66 || c50 <-> (! EXISTS p_Erase_9: Erase. (p_Erase_9_presence & ((Erase_0_pid = p_Erase_9_pid) & (t_Collect_1_time < p_Erase_9_time) & (p_Erase_9_time <= Erase_0_time))))
+DeriveFact || F51 || c47 -> (c48 & c49 & c50) || F49 F50 L66 L65
+DeriveLemma || NNF L66  || L67 || c50 <-> Forall p_Erase_10: Erase. ( (! p_Erase_10_presence) | (! ((Erase_0_pid = p_Erase_10_pid) & (t_Collect_1_time < p_Erase_10_time) & (p_Erase_10_time <= Erase_0_time)))) || L66
+Def || L68 || c51 <-> Forall p_Erase_10: Erase. ( (! p_Erase_10_presence) | (! ((Erase_0_pid = p_Erase_10_pid) & (t_Collect_1_time < p_Erase_10_time) & (p_Erase_10_time <= Erase_0_time))))
+DeriveFact || F52 || c50 -> c51 || L68 L67
+DeriveLemma || UI L68  [p_Erase_10:Erase<-Erase_0] || L69 || c51 -> ((! Erase_0_presence) | (! ((Erase_0_pid = Erase_0_pid) & (t_Collect_1_time < Erase_0_time) & (Erase_0_time <= Erase_0_time)))) || L68 L38
+AddFact || F53 || c52 <-> ((! Erase_0_presence) | (! ((Erase_0_pid = Erase_0_pid) & (t_Collect_1_time < Erase_0_time) & (Erase_0_time <= Erase_0_time))))
+DeriveFact || F54 || c51 -> c52 || F53 L69
+AddFact || F149 || c131 <-> (! t_Collect_1_presence)
+DeriveLemma || UI L9  [p_Collect_2:Collect<-t_Collect_1] || L152 || c4 -> ((! t_Collect_1_presence) | Forall p_Collect_38: Collect. ( (! p_Collect_38_presence) | ((! (p_Collect_38_time < t_Collect_1_time)) | (p_Collect_38_pid < t_Collect_1_pid)))) || L9 L63
+Def || L153 || c136 <-> ((! t_Collect_1_presence) | Forall p_Collect_38: Collect. ( (! p_Collect_38_presence) | ((! (p_Collect_38_time < t_Collect_1_time)) | (p_Collect_38_pid < t_Collect_1_pid))))
+DeriveFact || F157 || c4 -> c136 || L153 L152
+Def || L154 || c137 <-> Forall p_Collect_38: Collect. ( (! p_Collect_38_presence) | ((! (p_Collect_38_time < t_Collect_1_time)) | (p_Collect_38_pid < t_Collect_1_pid)))
+DeriveFact || F158 || c136 -> (c131 | c137) || F149 L154 L153
+DeriveLemma || UI L154  [p_Collect_38:Collect<-t_Collect_0] || L155 || c137 -> ((! t_Collect_0_presence) | ((! (t_Collect_0_time < t_Collect_1_time)) | (t_Collect_0_pid < t_Collect_1_pid))) || L154 L46
+AddFact || F159 || c138 <-> ((! t_Collect_0_presence) | ((! (t_Collect_0_time < t_Collect_1_time)) | (t_Collect_0_pid < t_Collect_1_pid)))
+DeriveFact || F160 || c137 -> c138 || F159 L155
+UNSAT || F19 F46 F20 F48 F51 F4 F24 F149 F45 F49 F157 F0 F27 F159 F54 F158 F23 F25 F26 F13 F18 F52 F44 F160 F53 F47
+Vars || t_Collect_1_time:Int c46:Bool c23:Bool c44:Bool c51:Bool c49:Bool c50:Bool c137:Bool t_Collect_0_presence:Bool t_Collect_1_presence:Bool c4:Bool c13:Bool Erase_0_subject:Int t_Collect_0_pid:Int Erase_0_pid:Int c25:Bool Erase_0_time:Int c43:Bool t_Collect_0_subject:Int Erase_0_presence:Bool c131:Bool c18:Bool c19:Bool c47:Bool t_Collect_1_pid:Int c24:Bool c52:Bool c48:Bool c45:Bool t_Collect_0_time:Int c136:Bool c138:Bool c0:Bool c26:Bool

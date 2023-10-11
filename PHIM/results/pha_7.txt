@@ -1,0 +1,180 @@
+solving under config: restart False, bcr False, ub False, min True
+1
+need to add more rules
+1
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+2
+need to add more rules
+2
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+3
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+4
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+5
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+6
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+7
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+8
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+9
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+10
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+11
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+12
+need to add more rules
+12
+need to add more rules
+12
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+13
+need to add more rules
+13
+need to add more rules
+13
+need to add more rules
+13
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+14
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+15
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+16
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+17
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+18
+need to add more rules
+18
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+19
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+20
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+21
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+22
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+23
+need to add more rules
+23
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+24
+need to add more rules
+24
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+25
+start minimizing
+start cleanning
+start action merging 
+need to increase domain
+26
+find trace
+18 19
+A better result may exist
+26
+find trace
+19 19
+26
+need to add more rules
+26
+find trace
+19 19
+@0 Collect(subject=1, pid=0, pvalue=33, purpose=0)
+@1 Collect(subject=5, pid=1, pvalue=32, purpose=1)
+@2 Collect(subject=10, pid=2, pvalue=0, purpose=0)
+@3 Collect(subject=7, pid=3, pvalue=0, purpose=1)
+@4 Collect(subject=4, pid=4, pvalue=0, purpose=2)
+@5 Collect(subject=9, pid=5, pvalue=0, purpose=2)
+@6 Collect(subject=8, pid=6, pvalue=0, purpose=2)
+@7 Collect(subject=6, pid=7, pvalue=0, purpose=0)
+@8 Collect(subject=0, pid=8, pvalue=0, purpose=2)
+@9 Collect(subject=3, pid=9, pvalue=0, purpose=2)
+@10 Requested_Update(subject=2, pid=10, pvalue=120)
+@10 Requested_Update(subject=2, pid=10, pvalue=114)
+@10 Collect(subject=2, pid=10, pvalue=30, purpose=0)
+@11 Update(subject=2, pid=10, pvalue=114)
+@11 Update(subject=2, pid=10, pvalue=120)
+@12 Update(subject=2, pid=10, pvalue=120)
+@12 Update(subject=2, pid=10, pvalue=114)
+@13 Update(subject=2, pid=10, pvalue=120)
+@14 Erase(subject=2, pid=10)
+opt vol is 19
+solution is opt
+6.425139904022217
