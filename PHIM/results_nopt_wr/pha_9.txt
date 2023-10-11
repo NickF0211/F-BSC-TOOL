@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/nickfeng/SFAH19/runtime-verif/PHIM/baby_rule.py", line 234, in <module>
-    target_rule = globals()["rule_{}".format(args[0])]
-KeyError: 'rule_9'
