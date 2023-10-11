@@ -27,11 +27,11 @@ def run_exp(command_header):
             rule_f.write(
                 rule_conetent.format(domain_file=outfile[:-3], i=j, vol_bound=vol_bound))
 
-        result_file = "results/ph_{}_nonopt.txt".format(j)
+        result_file = "results/ph_{}_nonopt_bcr.txt".format(j)
         print(result_file)
         with open(result_file, 'w') as f:
             try:
-                result = subprocess.run(command_header + [ rule_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                result = subprocess.run(command_header + [ rule_file, "f", "f", "t"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                         universal_newlines=True,
                                         timeout=timeout)
                 f.write(result.stdout)
@@ -41,37 +41,37 @@ def run_exp(command_header):
                 f.write("timeout {}".format(timeout))
                 #continue
 
-
-        result_file = "results/ph_{}.txt".format(j)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [ rule_file, "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-
-                f.write(result.stdout)
-                f.write(result.stderr)
-
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                #continue
-
-
-
-        result_file = "results/ph_{}_restart.txt".format(j)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [rule_file, "t", "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-                f.write(result.stdout)
-                f.write(result.stderr)
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
+        #
+        # result_file = "results/ph_{}.txt".format(j)
+        # print(result_file)
+        # with open(result_file, 'w') as f:
+        #     try:
+        #         result = subprocess.run(command_header + [ rule_file, "t"], stdout=subprocess.PIPE,
+        #                                 stderr=subprocess.PIPE,
+        #                                 universal_newlines=True,
+        #                                 timeout=timeout)
+        #
+        #         f.write(result.stdout)
+        #         f.write(result.stderr)
+        #
+        #     except subprocess.TimeoutExpired as t:
+        #         f.write("timeout {}".format(timeout))
+        #         #continue
+        #
+        #
+        #
+        # result_file = "results/ph_{}_restart.txt".format(j)
+        # print(result_file)
+        # with open(result_file, 'w') as f:
+        #     try:
+        #         result = subprocess.run(command_header + [rule_file, "t", "t"], stdout=subprocess.PIPE,
+        #                                 stderr=subprocess.PIPE,
+        #                                 universal_newlines=True,
+        #                                 timeout=timeout)
+        #         f.write(result.stdout)
+        #         f.write(result.stderr)
+        #     except subprocess.TimeoutExpired as t:
+        #         f.write("timeout {}".format(timeout))
                 #continue
 
 
@@ -91,23 +91,23 @@ def run_exp(command_header):
                 f.write("timeout {}".format(timeout))
                 #continue
 
-        result_file = "results/ph_{}_all.txt".format(j)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [rule_file, "t", "t", "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-                f.write(result.stdout)
-                f.write(result.stderr)
-
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                #continue
+        # result_file = "results/ph_{}_all.txt".format(j)
+        # print(result_file)
+        # with open(result_file, 'w') as f:
+        #     try:
+        #         result = subprocess.run(command_header + [rule_file, "t", "t", "t"], stdout=subprocess.PIPE,
+        #                                 stderr=subprocess.PIPE,
+        #                                 universal_newlines=True,
+        #                                 timeout=timeout)
+        #         f.write(result.stdout)
+        #         f.write(result.stderr)
+        #
+        #     except subprocess.TimeoutExpired as t:
+        #         f.write("timeout {}".format(timeout))
+        #         #continue
 
 
 
 if __name__ == "__main__":
-    command_header = ["../../memtime-master/memtime", "python3"]
+    command_header = ["../../../memtime/memtime", "python3"]
     run_exp(command_header)
