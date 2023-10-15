@@ -350,7 +350,6 @@ def check_property_refining(property, rules, complete_rules, ACTION, state_actio
                             else:
                                 print_trace(current_best, ACTION, state_action, ignore_class=state_action,
                                             should_print=True)
-                                print("opt vol is {}".format(vol))
                                 print("solution is opt")
                                 return
                         else:
