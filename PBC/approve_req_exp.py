@@ -19,98 +19,98 @@ def run_exp(command_header):
     data = 2
     time = 4
     bound = 10
-    for i in range(3):
-        outfile = "approve_req_domain_{}.py".format(i)
-        rule_file = "approve_req_rule_{}.py".format(i)
-        with open(outfile, 'w') as out_f:
-            out_f.write(domain_content.format(id =id, data =data, time = time))
+    # for i in range(3):
+    #     outfile = "approve_req_domain_{}.py".format(i)
+    #     rule_file = "approve_req_rule_{}.py".format(i)
+    #     with open(outfile, 'w') as out_f:
+    #         out_f.write(domain_content.format(id =id, data =data, time = time))
+    #
+    #     with open(rule_file, 'w') as rule_f:
+    #         rule_f.write(
+    #             rule_conetent.format(domain_file=outfile[:-3], vol_bound = bound))
+    #
+    #     result_file = "results/approve_req_{}.txt".format(i)
+    #     print(result_file)
+    #     with open(result_file, 'w') as f:
+    #         try:
+    #             result = subprocess.run(command_header + [ rule_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    #                                     universal_newlines=True,
+    #                                     timeout=timeout)
+    #         except subprocess.TimeoutExpired as t:
+    #             f.write("timeout {}".format(timeout))
+    #             continue
+    #
+    #         f.write(result.stdout)
+    #         f.write(result.stderr)
+    #
+    #     result_file = "results/approve_req_opt_{}.txt".format(i)
+    #     print(result_file)
+    #     with open(result_file, 'w') as f:
+    #         try:
+    #             result = subprocess.run(command_header + [ rule_file, "t"], stdout=subprocess.PIPE,
+    #                                     stderr=subprocess.PIPE,
+    #                                     universal_newlines=True,
+    #                                     timeout=timeout)
+    #         except subprocess.TimeoutExpired as t:
+    #             f.write("timeout {}".format(timeout))
+    #             continue
+    #
+    #         f.write(result.stdout)
+    #         f.write(result.stderr)
+    #
+    #     result_file = "results/approve_req_opt_{}_restart.txt".format(i)
+    #     print(result_file)
+    #     with open(result_file, 'w') as f:
+    #         try:
+    #             result = subprocess.run(command_header + [rule_file, "t", "t"], stdout=subprocess.PIPE,
+    #                                     stderr=subprocess.PIPE,
+    #                                     universal_newlines=True,
+    #                                     timeout=timeout)
+    #         except subprocess.TimeoutExpired as t:
+    #             f.write("timeout {}".format(timeout))
+    #             continue
+    #
+    #         f.write(result.stdout)
+    #         f.write(result.stderr)
+    #
+    #     result_file = "results/approve_req_opt_{}_bcr.txt".format(i)
+    #     print(result_file)
+    #     with open(result_file, 'w') as f:
+    #         try:
+    #             result = subprocess.run(command_header + [rule_file, "t", "f", "t"], stdout=subprocess.PIPE,
+    #                                     stderr=subprocess.PIPE,
+    #                                     universal_newlines=True,
+    #                                     timeout=timeout)
+    #         except subprocess.TimeoutExpired as t:
+    #             f.write("timeout {}".format(timeout))
+    #             continue
+    #
+    #         f.write(result.stdout)
+    #         f.write(result.stderr)
+    #
+    #
+    #     result_file = "results/approve_req_opt_{}_all.txt".format(i)
+    #     print(result_file)
+    #     with open(result_file, 'w') as f:
+    #         try:
+    #             result = subprocess.run(command_header + [rule_file, "t", "t", "t"], stdout=subprocess.PIPE,
+    #                                     stderr=subprocess.PIPE,
+    #                                     universal_newlines=True,
+    #                                     timeout=timeout)
+    #         except subprocess.TimeoutExpired as t:
+    #             f.write("timeout {}".format(timeout))
+    #             continue
+    #
+    #         f.write(result.stdout)
+    #         f.write(result.stderr)
+    #
+    #     id = id * 10
+    #     data = data *10
+    #     time = time * 10
+    #     bound = bound * 10
 
-        with open(rule_file, 'w') as rule_f:
-            rule_f.write(
-                rule_conetent.format(domain_file=outfile[:-3], vol_bound = bound))
-
-        result_file = "results/approve_req_{}.txt".format(i)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [ rule_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                continue
-
-            f.write(result.stdout)
-            f.write(result.stderr)
-
-        result_file = "results/approve_req_opt_{}.txt".format(i)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [ rule_file, "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                continue
-
-            f.write(result.stdout)
-            f.write(result.stderr)
-
-        result_file = "results/approve_req_opt_{}_restart.txt".format(i)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [rule_file, "t", "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                continue
-
-            f.write(result.stdout)
-            f.write(result.stderr)
-
-        result_file = "results/approve_req_opt_{}_bcr.txt".format(i)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [rule_file, "t", "f", "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                continue
-
-            f.write(result.stdout)
-            f.write(result.stderr)
-
-
-        result_file = "results/approve_req_opt_{}_all.txt".format(i)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [rule_file, "t", "t", "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                continue
-
-            f.write(result.stdout)
-            f.write(result.stderr)
-
-        id = id * 10
-        data = data *10
-        time = time * 10
-        bound = bound * 10
-
-    outfile = "approve_req_domain_unbound.py".format(i)
-    rule_file = "approve_req_rule_unbound.py".format(i)
+    outfile = "approve_req_domain_unbound.py"
+    rule_file = "approve_req_rule_unbound.py"
     with open(outfile, 'w') as out_f:
         out_f.write(domain_content.format(id=None, data=None, time=None))
 
@@ -118,11 +118,11 @@ def run_exp(command_header):
         rule_f.write(
             rule_conetent.format(domain_file=outfile[:-3], vol_bound = 10000 ))
 
-    result_file = "results/approve_req_unbound.txt"
+    result_file = "results/approve_req_unbound_bcr.txt"
     print(result_file)
     with open(result_file, 'w') as f:
         try:
-            result = subprocess.run(command_header + [ rule_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            result = subprocess.run(command_header + [ rule_file, "f", "f", "t"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                     universal_newlines=True,
                                     timeout=timeout)
         except subprocess.TimeoutExpired as t:
@@ -132,34 +132,34 @@ def run_exp(command_header):
         f.write(result.stdout)
         f.write(result.stderr)
 
-    result_file = "results/approve_req_unbound_opt.txt"
-    print(result_file)
-    with open(result_file, 'w') as f:
-        try:
-            result = subprocess.run(command_header + [rule_file, "t"], stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    universal_newlines=True,
-                                    timeout=timeout)
-        except subprocess.TimeoutExpired as t:
-            f.write("timeout {}".format(timeout))
-
-
-        f.write(result.stdout)
-        f.write(result.stderr)
-
-    result_file = "results/approve_req_unbound_opt_restart.txt"
-    print(result_file)
-    with open(result_file, 'w') as f:
-        try:
-            result = subprocess.run(command_header + [rule_file, "t", "t"], stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    universal_newlines=True,
-                                    timeout=timeout)
-        except subprocess.TimeoutExpired as t:
-            f.write("timeout {}".format(timeout))
-
-        f.write(result.stdout)
-        f.write(result.stderr)
+    # result_file = "results/approve_req_unbound_opt.txt"
+    # print(result_file)
+    # with open(result_file, 'w') as f:
+    #     try:
+    #         result = subprocess.run(command_header + [rule_file, "t"], stdout=subprocess.PIPE,
+    #                                 stderr=subprocess.PIPE,
+    #                                 universal_newlines=True,
+    #                                 timeout=timeout)
+    #     except subprocess.TimeoutExpired as t:
+    #         f.write("timeout {}".format(timeout))
+    #
+    #
+    #     f.write(result.stdout)
+    #     f.write(result.stderr)
+    #
+    # result_file = "results/approve_req_unbound_opt_restart.txt"
+    # print(result_file)
+    # with open(result_file, 'w') as f:
+    #     try:
+    #         result = subprocess.run(command_header + [rule_file, "t", "t"], stdout=subprocess.PIPE,
+    #                                 stderr=subprocess.PIPE,
+    #                                 universal_newlines=True,
+    #                                 timeout=timeout)
+    #     except subprocess.TimeoutExpired as t:
+    #         f.write("timeout {}".format(timeout))
+    #
+    #     f.write(result.stdout)
+    #     f.write(result.stderr)
 
     result_file = "results/approve_req_unbound_opt_bcr.txt"
     print(result_file)
@@ -176,21 +176,21 @@ def run_exp(command_header):
         f.write(result.stderr)
 
 
-    result_file = "results/approve_req_unbound_opt_all.txt"
-    print(result_file)
-    with open(result_file, 'w') as f:
-        try:
-            result = subprocess.run(command_header + [rule_file, "t", "t", "t"], stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    universal_newlines=True,
-                                    timeout=timeout)
-        except subprocess.TimeoutExpired as t:
-            f.write("timeout {}".format(timeout))
-
-        f.write(result.stdout)
-        f.write(result.stderr)
+    # result_file = "results/approve_req_unbound_opt_all.txt"
+    # print(result_file)
+    # with open(result_file, 'w') as f:
+    #     try:
+    #         result = subprocess.run(command_header + [rule_file, "t", "t", "t"], stdout=subprocess.PIPE,
+    #                                 stderr=subprocess.PIPE,
+    #                                 universal_newlines=True,
+    #                                 timeout=timeout)
+    #     except subprocess.TimeoutExpired as t:
+    #         f.write("timeout {}".format(timeout))
+    #
+    #     f.write(result.stdout)
+    #     f.write(result.stderr)
 
 
 if __name__ == "__main__":
-    command_header = ["../../memtime-master/memtime", "python3"]
+    command_header = ["../../../memtime/memtime", "python3"]
     run_exp(command_header)

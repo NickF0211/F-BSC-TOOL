@@ -1,170 +1,30 @@
 solving under config: restart False, bcr True, ub False, min True
-1
-need to add more rules
-1
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-2
-need to add more rules
-2
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-3
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-4
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-5
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-6
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-7
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-8
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-9
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-10
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-11
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-12
-need to add more rules
-12
-need to add more rules
-12
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-13
-need to add more rules
-13
-need to add more rules
-13
-need to add more rules
-13
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-14
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-15
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-16
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-17
-need to add more rules
-17
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-18
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-19
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-20
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-21
-need to add more rules
-21
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-22
-need to add more rules
-22
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-23
-start minimizing
-start cleanning
-start action merging 
-need to increase domain
-24
 find trace
 18 19
 A better result may exist
-24
 find trace
 19 19
-24
-need to add more rules
-24
 find trace
 19 19
-@0 Collect(subject=1, pid=0, pvalue=30, purpose=0)
-@1 Collect(subject=3, pid=1, pvalue=0, purpose=1)
-@2 Collect(subject=6, pid=2, pvalue=0, purpose=1)
-@3 Collect(subject=9, pid=3, pvalue=0, purpose=2)
-@4 Collect(subject=10, pid=4, pvalue=0, purpose=0)
-@5 Collect(subject=8, pid=5, pvalue=0, purpose=0)
-@6 Collect(subject=0, pid=6, pvalue=0, purpose=0)
-@7 Collect(subject=7, pid=7, pvalue=0, purpose=2)
-@8 Collect(subject=5, pid=8, pvalue=0, purpose=0)
-@9 Collect(subject=4, pid=9, pvalue=0, purpose=1)
-@10 Requested_Update(subject=2, pid=10, pvalue=113)
-@10 Collect(subject=2, pid=10, pvalue=29, purpose=2)
-@11 Requested_Update(subject=2, pid=10, pvalue=119)
-@11 Update(subject=2, pid=10, pvalue=113)
-@12 Update(subject=2, pid=10, pvalue=119)
-@12 Update(subject=2, pid=10, pvalue=113)
-@13 Update(subject=2, pid=10, pvalue=113)
-@13 Update(subject=2, pid=10, pvalue=119)
-@14 Erase(subject=2, pid=10)
+at time 0: Collect(subject=1, pid=0, pvalue=30, purpose=0)
+at time 1: Collect(subject=9, pid=1, pvalue=0, purpose=0)
+at time 2: Collect(subject=10, pid=2, pvalue=0, purpose=0)
+at time 3: Collect(subject=6, pid=3, pvalue=0, purpose=0)
+at time 4: Collect(subject=3, pid=4, pvalue=0, purpose=0)
+at time 5: Collect(subject=7, pid=5, pvalue=0, purpose=1)
+at time 6: Collect(subject=4, pid=6, pvalue=0, purpose=2)
+at time 7: Collect(subject=5, pid=7, pvalue=0, purpose=2)
+at time 8: Collect(subject=0, pid=8, pvalue=0, purpose=0)
+at time 9: Collect(subject=2, pid=9, pvalue=29, purpose=1)
+at time 10: Requested_Update(subject=8, pid=10, pvalue=104)
+at time 10: Collect(subject=8, pid=10, pvalue=28, purpose=0)
+at time 11: Requested_Update(subject=8, pid=10, pvalue=105)
+at time 11: Update(subject=8, pid=10, pvalue=104)
+at time 12: Update(subject=8, pid=10, pvalue=105)
+at time 12: Update(subject=8, pid=10, pvalue=104)
+at time 13: Update(subject=8, pid=10, pvalue=104)
+at time 13: Update(subject=8, pid=10, pvalue=105)
+at time 14: Erase(subject=8, pid=10)
 opt vol is 19
 solution is opt
-6.379550933837891
+4.512035846710205

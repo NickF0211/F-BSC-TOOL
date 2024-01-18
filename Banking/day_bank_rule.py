@@ -103,6 +103,7 @@ if __name__ == '__main__':
     rules = set()
     start = time.time()
     complete_rules = add_background_theories(ACTION, state_action, complete_rules, bcr)
+    rules.add(complete_rules[-1])
     check_property_refining(target_rule, set(complete_rules), complete_rules, ACTION, state_action, True, min_solution=mymin,
                             final_min_solution=True, restart=restart, boundary_case=bcr, universal_blocking=ub)
     print(time.time() - start)

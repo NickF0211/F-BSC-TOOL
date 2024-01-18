@@ -77,7 +77,6 @@ daily_transfer_out_sum = make_bin_predicate(_daily_transfer_out_sum)
 
 # balance = _balance
 complete_rules = []
-add_background_theories(ACTION, state_action, complete_rules)
 TS = union(Trans, Depo, Withdraw)
 
 # every transication has a unqie tid
@@ -143,5 +142,7 @@ rule_12 = AND(transfer_protection, exist(Trans, lambda wd: wd.amount > 2500))
 if __name__ == '__main__':
     rules = set()
     start = time.time()
+    add_background_theories(ACTION, state_action, complete_rules)
+    rules.add(complete_rules[-1])
     check_property_refining(rule_10, complete_rules, complete_rules, ACTION, state_action, True, min_solution=False)
     print(time.time() - start)

@@ -28,7 +28,7 @@ NOP = create_action("NumberofParents", [("node", "node"), ("count", "nat"), ("id
 HNOP = create_action("HistoricalNumberofParents", [("node", "node"), ("count", "nat"), ("id", "counter"), ("time", "time")], type_dict)
 NOC = create_action("NumberofChilren", [("node", "node"), ("count", "nat"), ("id", "counter"),  ("time", "time")], type_dict)
 HNOC = create_action("HistoricalNumberofChilren", [("node", "node"), ("count", "nat"), ("id", "counter"),  ("time", "time")], type_dict)
-NC = create_action("NodeCount",  [("id", "count"), ("count", "nat"), ("id", "counter"),  ("time", "time")], type_dict)
+NC = create_action("NodeCount",  [("node", "node"), ("count", "nat"), ("id", "counter"),  ("time", "time")], type_dict)
 
 
 '''

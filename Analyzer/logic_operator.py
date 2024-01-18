@@ -1,6 +1,7 @@
 from ordered_set import OrderedSet
 from pysmt.shortcuts import *
-from pysmt.fnode import FNode
+from pysmt.shortcuts import Exists as PExist
+from pysmt.shortcuts import ForAll as PForall
 
 from type_constructor import Action, UnionAction
 
@@ -15,6 +16,9 @@ control_var_sym = dict()
 
 learned_inv = []
 model_action_mapping = dict()
+
+# a reference table to keep track of the reference of a node
+text_ref = {}
 
 
 class Control_Tree():
@@ -139,17 +143,36 @@ def _polymorph_args_to_tuple(args, should_tuple=False):
         return list(tuple(args))
 
 
-def encode(formula, assumption=False, include_new_act=False, exception=None, disable=None):
+def encode(formula, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
     if isinstance(formula, Operator):
         res = formula.encode(assumption=assumption, include_new_act=include_new_act, exception=exception,
-                             disable=disable)
+                             disable=disable, proof_writer=proof_writer)
         if formula.subs is not None:
             for target, src in formula.subs.items():
                 res = target.sym_subs(src, encode(res, assumption=assumption, include_new_act=include_new_act,
-                                                  exception=exception, disable=disable))
+                                                  exception=exception, disable=disable, proof_writer=proof_writer))
+        return res
+    else:
+        if proof_writer:
+            proof_writer.add_definition(formula, derived=False)
+        return formula
+
+
+def fol_encode(formula):
+    if isinstance(formula, Operator):
+        res = formula.fol_encode()
         return res
     else:
         return formula
+
+
+def to_string(formula):
+    if isinstance(formula, Operator):
+        return formula.to_string()
+    elif isinstance(formula, str):
+        return formula
+    else:
+        return serialize(formula)
 
 
 def invert(formula):
@@ -231,7 +254,7 @@ def get_func_args(func):
     return func.__code__.co_varnames
 
 
-def exist(Action_Class, func, input_subs=None):
+def exist(Action_Class, func, input_subs=None, reference=None):
     if isinstance(Action_Class, type([])):
         func_vars = list(get_func_args(func))
         # assert len(Action_Class) == len(func_vars)
@@ -251,14 +274,14 @@ def exist(Action_Class, func, input_subs=None):
             new_func = lambda x: exist(Action_Class[1:], lambda *args: func(x, *args), input_subs=input_subs)
             return exist(Action_Class[0], new_func, input_subs=cur_input)
     elif isinstance(Action_Class, type):
-        return Exists(Action_Class, _func(func), input_subs=input_subs)
+        return Exists(Action_Class, _func(func), input_subs=input_subs, reference=reference)
     elif isinstance(Action_Class, UnionAction):
         return OR([Exists(AC, _func(func), input_subs=input_subs) for AC in Action_Class.actions])
     else:
         raise AssertionError
 
 
-def forall(Action_Class, func):
+def forall(Action_Class, func, reference=None):
     if isinstance(Action_Class, type([])):
         func_vars = list(get_func_args(func))
         assert len(Action_Class) == len(func_vars)
@@ -269,7 +292,7 @@ def forall(Action_Class, func):
             new_func = lambda x: forall(Action_Class[1:], lambda *args: func(x, *args))
             return forall(Action_Class[0], new_func)
     elif isinstance(Action_Class, type):
-        return Forall(Action_Class, _func(func))
+        return Forall(Action_Class, _func(func), reference=reference)
     elif isinstance(Action_Class, UnionAction):
         return AND([Forall(AC, _func(func)) for AC in Action_Class.actions])
     else:
@@ -291,9 +314,8 @@ def ret_one(_):
 
 
 def Count(Action_Class, filter_func, trigger_act=None, input_subs=None):
-    return Sum(Action_Class, ret_one, filter_func, trigger_act=trigger_act, input_subs=input_subs)
-    # return Summation(Action_Class, _func(ret_one), _func(filter_func), trigger_act=trigger_act, is_count=True,
-    #                  input_subs=input_subs)
+    return Summation(Action_Class, _func(ret_one), _func(filter_func), trigger_act=trigger_act, is_count=True,
+                     input_subs=input_subs)
 
 
 def Sum(Action_Class, value_func, filter_func, trigger_act=None, input_subs=None):
@@ -321,14 +343,31 @@ def Sum(Action_Class, value_func, filter_func, trigger_act=None, input_subs=None
 
 
 def Implication(l, r):
+    if l == TRUE():
+        return r
+    if l == FALSE():
+        return TRUE()
+    if r == TRUE():
+        return TRUE()
+    if r == FALSE():
+        return NOT(l)
     return OR(NOT(l), r)
 
 
 class Operator():
     def __init__(self):
         self.subs = {}
+        self.proof_lit = None
+        self.proof_derived = False
+        self.text_ref = None
+        self.op = None
 
-    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None):
+    def clear(self):
+        self.subs = {}
+        self.proof_lit = None
+        self.proof_derived = False
+
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
         return
 
     def invert(self):
@@ -367,6 +406,13 @@ class Operator():
     def __sub__(self, other):
         assert False
 
+    def to_string(self):
+        return ""
+
+    def fol_encode(self):
+        print("unimplemented encoding")
+        return encode(self)
+
 
 class Arth_Operator(Operator):
     def __init__(self):
@@ -393,12 +439,18 @@ class Arth_Operator(Operator):
     def __sub__(self, other):
         return artop(self, other, _Minus)
 
+    def to_string(self):
+        # unimplemented
+        assert False
+
 
 def NOT(arg, polarity=True):
     if arg is None or arg == []:
         return TRUE()
     else:
-        if isinstance(arg, Operator):
+        if isinstance(arg, Bool_Terminal):
+            return invert(arg)
+        elif isinstance(arg, Operator):
             return C_NOT(arg, polarity)
         else:
             return Not(arg)
@@ -411,13 +463,34 @@ class C_NOT(Operator):
         self.polarity = polarity
         self.op = None
 
-    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None):
+    def clear(self):
+        super(C_NOT, self).clear()
+        self.op = None
+        clear(self.arg)
+
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
+
         if self.polarity:
-            return encode(invert(self.arg), assumption=assumption, include_new_act=include_new_act, exception=exception,
-                          disable=disable)
+            result = encode(invert(self.arg), assumption=assumption, include_new_act=include_new_act,
+                            exception=exception,
+                            disable=disable, proof_writer=proof_writer)
         else:
-            return encode(self.arg, assumption=assumption, include_new_act=include_new_act, exception=exception,
-                          disable=disable)
+            result = encode(self.arg, assumption=assumption, include_new_act=include_new_act, exception=exception,
+                            disable=disable, proof_writer=proof_writer)
+
+        if self.polarity and proof_writer and not self.proof_derived:
+            proof_writer.add_negation(self)
+            self.proof_derived = True
+
+        return result
+
+    def fol_encode(self):
+        if self.polarity:
+            result = fol_encode(invert(self.arg))
+        else:
+            result = fol_encode(self.arg)
+
+        return result
 
     # if invert the not, then you get the argument
     def invert(self):
@@ -426,7 +499,7 @@ class C_NOT(Operator):
         else:
             if self.polarity:
                 self.op = self.arg
-                self.op.op = self
+                # self.op.op = self
             else:
                 assert False
         return self.op
@@ -452,6 +525,12 @@ class C_NOT(Operator):
     def generalize_encode(self, context=[]):
         return encode(self)
 
+    def to_string(self):
+        if self.polarity:
+            return to_string("(! {})".format(to_string(self.arg)))
+        else:
+            return to_string(self.arg)
+
 
 def should_use_gate(args):
     for arg in args:
@@ -466,137 +545,8 @@ def artop(left, right, op):
             return Arth_Expression(left, right, op)
         else:
             return Compare_Binary_Expression(left, right, op)
-            # short_cut_result, short_cut = lower_bound_counting(left, right, op)
-            # if not short_cut:
-            #     return Compare_Binary_Expression(left, right, op)
-            # else:
-            #     return short_cut_result
     else:
         return op(left, right)
-
-
-'''
-
-If a count has a constant as its lower_bound, then extract the lower bound and make constraint directly
-'''
-
-from math import ceil, floor
-def lower_bound_counting(left, right, op):
-    if op == _GE and is_count(left) and is_constant(right):
-        multi, count, l_constant = decompose_count_constant(left)
-        _, _, r_constant = decompose_count_constant(right)
-        constant =  ceil( (r_constant - l_constant) / multi)
-    elif op == _GT and is_count(left) and is_constant(right):
-        multi, count, l_constant = decompose_count_constant(left)
-        _, _, r_constant = decompose_count_constant(right)
-        constant = ceil( (r_constant  - l_constant + 1) / multi)
-    elif op == _LE and is_count(right) and is_constant(left):
-        multi, count, l_constant = decompose_count_constant(right)
-        _, _, r_constant = decompose_count_constant(left)
-        constant = ceil( (l_constant - r_constant) / multi)
-    elif op == _LT and is_count(right) and is_constant(left):
-        multi, count, l_constant = decompose_count_constant(right)
-        _, _, r_constant = decompose_count_constant(left)
-        constant = ceil( (l_constant - r_constant + 1) /multi)
-    elif op == _EQ and is_count(left) and is_constant(right):
-        multi, count, l_constant = decompose_count_constant(left)
-        _, _, r_constant = decompose_count_constant(right)
-        constant = ceil((r_constant - l_constant) / multi)
-        ge_constaint = pseudo_boolean_count_ge(count, constant)
-        le_constaint = Compare_Binary_Expression(count, constant, _LE)
-        return AND(ge_constaint, le_constaint)
-    elif op == _EQ and is_count(right) and is_constant(left):
-        multi, count, l_constant = decompose_count_constant(right)
-        _, _, r_constant = decompose_count_constant(left)
-        constant = ceil((l_constant - r_constant) / multi)
-        ge_constaint = pseudo_boolean_count_ge(count, constant)
-        le_constaint = Compare_Binary_Expression(count, constant, _LE)
-        return AND(ge_constaint, le_constaint)
-    elif op == _NEQ and is_count(left) and is_constant(right):
-        multi, count, l_constant = decompose_count_constant(left)
-        _, _, r_constant = decompose_count_constant(right)
-        upper_constant = ceil((r_constant - l_constant + 1) / multi)
-        lower_constant = floor((r_constant - l_constant - 1) / multi)
-        gt_constaint = pseudo_boolean_count_ge(count, upper_constant)
-        lt_constaint = Compare_Binary_Expression(count, lower_constant, _LE)
-        return OR(gt_constaint, lt_constaint)
-    elif op == _NEQ and is_count(right) and is_constant(left):
-        multi, count, l_constant = decompose_count_constant(right)
-        _, _, r_constant = decompose_count_constant(left)
-        upper_constant = ceil((l_constant - r_constant + 1) / multi)
-        lower_constant = floor((l_constant - r_constant - 1) / multi)
-        gt_constaint = pseudo_boolean_count_ge(count, upper_constant)
-        lt_constaint = Compare_Binary_Expression(count, lower_constant, _LE)
-        return OR(gt_constaint, lt_constaint)
-    else:
-        return None, False
-
-
-
-    return pseudo_boolean_count_ge(count, constant), True
-
-def pseudo_boolean_count_ge(count, constant):
-    assert isinstance(count, Summation)
-
-    if constant <= 0:
-        return TRUE()
-    else:
-        class_name = count.input_type
-        filter_func = count.filter_func.procedure
-        return recursive_child_building(class_name, constant, filter_func, [])
-
-
-def recursive_child_building(class_name, num, filter_func, parents):
-    if num == 0:
-        currnet_constraint = []
-        for i in range(len(parents)):
-            for j in range(i + 1, len(parents)):
-                currnet_constraint.append(NEQ(parents[i], parents[j]))
-
-        for element in parents:
-            currnet_constraint.append(filter_func(element))
-
-        return AND(currnet_constraint)
-    else:
-        return exist(class_name,
-                     lambda item: recursive_child_building(class_name, num - 1, filter_func, parents + [item]))
-
-
-def is_constant(term):
-    if isinstance(term, Summation):
-        return False
-    elif isinstance(term, int):
-        return True
-    elif isinstance(term, FNode):
-        return term.is_constant()
-    elif isinstance(term, Arth_Expression):
-        return term.is_constant()
-    else:
-        return False
-
-
-def is_count(term):
-    if isinstance(term, Summation):
-        return term.is_count
-    elif isinstance(term, Arth_Expression):
-        return term.is_count()
-    else:
-        return False
-
-
-def decompose_count_constant(term):
-    if isinstance(term, Summation):
-        assert term.is_count
-        return 1, term, 0
-    elif isinstance(term, Arth_Expression):
-        return term.decompose_count_constant()
-    elif isinstance(term, FNode):
-        assert term.is_constant()
-        return 1, None, term.constant_value()
-    elif isinstance(term, int):
-        return 1, None, term
-    else:
-        assert False
 
 
 def propagate_polarity(term, pos, neg):
@@ -606,6 +556,92 @@ def propagate_polarity(term, pos, neg):
         term.propagate_polarity(pos, neg)
     else:
         return
+
+
+def op_str(op):
+    if op == _GT:
+        return ">"
+    elif op == _GE:
+        return ">="
+    elif op == _LE:
+        return "<="
+    elif op == _LT:
+        return "<"
+    elif op == _Plus:
+        return "+"
+    elif op == _Minus:
+        return "-"
+    elif op == _EQ:
+        return "=="
+    elif op == _NEQ:
+        return "!="
+    else:
+        assert False
+
+
+def op_str_sleec(op):
+    if op == ">":
+        return _GT
+    elif op == ">=":
+        return _GE
+    elif op == "<=":
+        return _LE
+    elif op == "<":
+        return _LT
+    elif op == "+":
+        return _Plus
+    elif op == "-":
+        return _Minus
+    elif op == "*":
+        return _Multi
+    elif op == "=":
+        return _EQ
+    elif op == "<>":
+        return _NEQ
+    else:
+        assert False
+
+
+def op_str_sleec_bool(op):
+    if op == "and":
+        return AND
+    elif op == "or":
+        return OR
+    elif op == "=>":
+        return Implication
+    else:
+        assert False
+
+
+class Bool_Terminal(Operator):
+    def __init__(self, value):
+        super().__init__()
+        self.value = value
+        self.op = None
+
+    def clear(self):
+        super().clear()
+        self.op = None
+
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
+        if proof_writer:
+            proof_writer.add_definition(self.value, derived=False, terminal_obj=self)
+        return self.value
+
+    def fol_encode(self):
+        return self.value
+
+    def invert(self):
+        if self.op:
+            return self.op
+        else:
+            res = Bool_Terminal(Not(self.value))
+            self.op = res
+            res.op = self
+            return res
+
+    def to_string(self):
+        return to_string(self.value)
 
 
 class Arth_Expression(Arth_Operator):
@@ -620,47 +656,26 @@ class Arth_Expression(Arth_Operator):
         self.pos = pos
         self.neg = neg
 
-    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None):
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
         left_result = encode(self.left, assumption=assumption, include_new_act=include_new_act, exception=exception,
-                             disable=disable)
+                             disable=disable, proof_writer=proof_writer)
         right_result = encode(self.right, assumption=assumption, include_new_act=include_new_act, exception=exception,
-                              disable=disable)
+                              disable=disable, proof_writer=proof_writer)
 
         return self.operator(left_result, right_result)
 
+    def fol_encode(self):
+        left_result = fol_encode(self.left)
+        right_result = fol_encode(self.right)
+        return self.operator(left_result, right_result)
+
+    def to_string(self):
+        left_str = to_string(self.left)
+        right_str = to_string(self.right)
+        return "( {} {} {})".format(left_str, op_str(self.operator), right_str)
+
     def invert(self):
         assert False
-
-    def is_count(self):
-        l_count = is_count(self.left)
-        r_count = is_count(self.right)
-        return (l_count and not r_count) or (r_count and not l_count)
-
-    def is_constant(self):
-        return is_constant(self.left) and is_constant(self.right)
-
-    def decompose_count_constant(self):
-        l_multi, l_count, l_constant = decompose_count_constant(self.left)
-        r_multi, r_count, r_constant = decompose_count_constant(self.right)
-        if l_count:
-            count = l_count
-        elif r_count:
-            count = r_count
-        else:
-            count = None
-        if self.operator == _Plus:
-            return count, l_constant + r_constant
-        elif self.operator == _Minus:
-            return count, l_constant - r_constant
-        elif self.operator == _Multi:
-            if l_count:
-                return l_multi * r_constant, count, l_constant * r_constant
-            elif r_count:
-                return r_multi * l_constant, count,  l_constant * r_constant
-            else:
-                return 0, count,  l_constant * r_constant
-        else:
-            assert False
 
     def propagate_polarity(self, pos, neg):
         self.pos = pos
@@ -695,15 +710,32 @@ class Compare_Binary_Expression(Operator):
             propagate_polarity(self.left, True, True)
             propagate_polarity(self.right, True, True)
 
-    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None):
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
         left_result = encode(self.left, assumption=assumption, include_new_act=include_new_act, exception=exception,
-                             disable=disable)
+                             disable=disable, proof_writer=proof_writer)
         right_result = encode(self.right, assumption=assumption, include_new_act=include_new_act, exception=exception,
-                              disable=disable)
+                              disable=disable, proof_writer=proof_writer)
         if self.polarity:
             return self.operator(left_result, right_result)
         else:
             return Not(self.operator(left_result, right_result))
+
+    def fol_encode(self):
+        left_result = fol_encode(self.left)
+        right_result = fol_encode(self.right)
+
+        if self.polarity:
+            return self.operator(left_result, right_result)
+        else:
+            return Not(self.operator(left_result, right_result))
+
+    def to_string(self):
+        left_str = to_string(self.left)
+        right_str = to_string(self.right)
+        if self.polarity:
+            return "( {} {} {})".format(left_str, op_str(self.operator), right_str)
+        else:
+            return "( {} {} {})".format(left_str, op_str(inverse_mapping(self.operator)), right_str)
 
     def invert(self):
         # now it actually matters
@@ -727,22 +759,46 @@ def AND(*args):
         return TRUE()
     else:
         if should_use_gate(c_args):
+            static_arg = frozenset(c_args)
+            if static_arg in C_AND.cache:
+                return C_AND.cache[static_arg]
             return C_AND(c_args)
         else:
             return And(_polymorph_args_to_tuple(args, should_tuple=True))
 
 
 class C_AND(Operator):
+    cache = {}
+
     def __init__(self, *args):
         super().__init__()
         self.arg_list = _polymorph_args_to_tuple(args)
         self.op = None
+        C_AND.cache[frozenset(self.arg_list)] = self
 
-    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None):
+    def clear(self):
+        super(C_AND, self).clear()
+        self.op = None
+        for arg in self.arg_list:
+            clear(arg)
+
+    def fol_encode(self):
+        result_list = []
+        for arg in self.arg_list:
+            result_list.append(fol_encode(arg))
+
+        return And(result_list)
+
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
         result_list = []
         for arg in self.arg_list:
             result_list.append(encode(arg, assumption=assumption, include_new_act=include_new_act, exception=exception,
-                                      disable=disable))
+                                      disable=disable, proof_writer=proof_writer))
+
+        if proof_writer and not self.proof_derived:
+            proof_writer.add_and(self)
+            self.proof_derived = True
+
         return And(result_list)
 
     def invert(self):
@@ -782,6 +838,12 @@ class C_AND(Operator):
         sub_slices = [res for res in sub_slices if res is not None]
         return AND(sub_slices)
 
+    def to_string(self):
+        result_list = []
+        for arg in self.arg_list:
+            result_list.append(to_string(arg))
+        return "({})".format(' & '.join(result_list))
+
 
 def OR(*args):
     c_args = _polymorph_args_to_tuple(args)
@@ -789,26 +851,56 @@ def OR(*args):
         return FALSE()
     else:
         if should_use_gate(c_args):
-            return C_OR(c_args)
+            static_arg = frozenset(c_args)
+            if static_arg in C_OR.cache:
+                return C_OR.cache[static_arg]
+            else:
+                return C_OR(c_args)
         else:
             return Or(_polymorph_args_to_tuple(args, should_tuple=True))
 
 
+def clear(arg):
+    if isinstance(arg, Operator):
+        arg.clear()
+
+
 class C_OR(Operator):
+    cache = {}
+
     def __init__(self, *args):
         super().__init__()
         self.arg_list = _polymorph_args_to_tuple(args)
         self.op = None
+        C_OR.cache[frozenset(self.arg_list)] = self
 
-    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None):
+    def clear(self):
+        super(C_OR, self).clear()
+        self.op = None
+        for arg in self.arg_list:
+            clear(arg)
+
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
         result_list = []
         for arg in self.arg_list:
             result_list.append(encode(arg, assumption=assumption, include_new_act=include_new_act, exception=exception,
-                                      disable=disable))
+                                      disable=disable, proof_writer=proof_writer))
+
+        if proof_writer and not self.proof_derived:
+            proof_writer.add_or(self)
+            self.proof_derived = True
+
         if assumption:
             return _OR(result_list)
         else:
             return Or(result_list)
+
+    def fol_encode(self):
+        result_list = []
+        for arg in self.arg_list:
+            result_list.append(fol_encode(arg))
+
+        return Or(result_list)
 
     def invert(self):
         if self.op is None:
@@ -846,6 +938,12 @@ class C_OR(Operator):
         sub_slices = [slicing(arg, actions, reverse=reverse) for arg in self.arg_list]
         sub_slices = [res for res in sub_slices if res is not None]
         return OR(sub_slices)
+
+    def to_string(self):
+        result_list = []
+        for arg in self.arg_list:
+            result_list.append(to_string(arg))
+        return "({})".format(' | '.join(result_list))
 
 
 def _predicate(predicate, key_arg):
@@ -902,6 +1000,10 @@ class Predicate(Operator):
 
         return cache
 
+    def to_string(self, *args):
+        res = self.evaulate(*args)
+        return to_string(res)
+
 
 def _func(procedure):
     func = Function.Function_cache.get(procedure, None)
@@ -923,6 +1025,11 @@ class Function(Operator):
         self.evaulated = []
         self.result_cache = dict()
         self.arg_num = arg_num
+        self.op = None
+
+    def clear(self):
+        self.evaulated.clear()
+        self.result_cache.clear()
         self.op = None
 
     def evaulate(self, input, assumption=False):
@@ -951,6 +1058,10 @@ class Function(Operator):
             self.op = Function(self.procedure, polarity=not self.polarity, arg_num=self.arg_num)
             self.op.op = self
         return self.op
+
+    def to_string(self, *args):
+        res = self.evaulate(*args)
+        return to_string(res)
 
 
 temp_count = 0
@@ -1275,12 +1386,14 @@ def get_temp_act_constraint_minimize(solver, rules, vars, eq_vars, inductive_ass
     if not no_duplicate:
         assert len(available) + len(available_ignored_act) >= 1
 
+    # print("-"*10)
     for node in available:
         if node in name_space:
             act = name_space[node]
             exist_obj = Exists.Temp_ACTs.get(act)
             if exist_obj is not None:
                 unqiue_act.append((act, exist_obj))
+                # print(act.get_record(model, debug=False))
 
     for act in available_ignored_act:
         exist_obj = Exists.Temp_ACTs.get(act)
@@ -1326,6 +1439,7 @@ def no_duplicate_filter(available, names_pace, solver, soft_constraints, vars, e
 def include_new_actions(unqiue_act, rules, should_block=False, inductive_assumption_table=None, ub=False):
     for act, exist_obj in unqiue_act:
         # print(type(act))
+        # print(exist_obj.to_string())
         Exists.Temp_ACTs.pop(act)
         act.make_permanent()
         new_action = act
@@ -1432,7 +1546,7 @@ class Exists(Operator):
     new_included = OrderedSet()
     count = 0
 
-    def __init__(self, input_type, func, input_subs=None):
+    def __init__(self, input_type, func, input_subs=None, reference=None, proof_required = False):
         super().__init__()
         if not isinstance(func, Function):
             raise illFormedFormulaException("Exists: {} is not a Function".format(func))
@@ -1446,6 +1560,23 @@ class Exists(Operator):
         self.op = None
         self.blocking_clause = None
         self.input_subs = input_subs
+        if proof_required:
+            self.print_act = self.input_type(print_only=True, input_subs=self.input_subs)
+        else:
+            self.print_act = None
+        self.print_statement = None
+        self.reference = reference
+        self.fol_object = None
+
+    def clear(self):
+        super(Exists, self).clear()
+        self.act_include = None
+        self.act_non_include = None
+        self.op = None
+        self.blocking_clause = None
+        self.print_statement = None
+        self.fol_object = None
+        self.func.clear()
 
     def __repr__(self):
         return "Exist_{}".format(self.id)
@@ -1453,8 +1584,7 @@ class Exists(Operator):
     def __hash__(self):
         return hash(self.__repr__())
 
-    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None):
-
+    def get_holding_obj(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
         if not include_new_act:
             if self.act_include is not None:
                 action = self.act_include
@@ -1467,9 +1597,51 @@ class Exists(Operator):
                 self.act_include = self.input_type(temp=False, input_subs=self.input_subs)
             action = self.act_include
 
-        base_constraint = encode(AND(self.func.evaulate(action, assumption=assumption), action.presence),
+        return action
+
+    def fol_encode(self):
+        if not self.fol_object:
+            self.fol_object = self.input_type(temp=True, input_subs=self.input_subs)
+        eval_result = self.func.evaulate(self.fol_object)
+        application_res = AND(self.fol_object.fol_presence, eval_result)
+        base_constraint = fol_encode(application_res)
+        base_constraint = substitute(base_constraint, {self.fol_object.presence:self.fol_object.fol_presence})
+        if self.input_subs:
+            attrs = type(self.fol_object).attr_order
+            qAttrs = [getattr(self.fol_object, attr) for attr in attrs if attr not in self.input_subs]
+            quantified = PExist(qAttrs, base_constraint)
+        else:
+            quantified = PExist(self.fol_object.named_attr, base_constraint)
+        return quantified
+
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
+        if not include_new_act:
+            if self.act_include is not None:
+                action = self.act_include
+            else:
+                if self.act_non_include is None:
+                    self.act_non_include = self.input_type(temp=True, input_subs=self.input_subs)
+                action = self.act_non_include
+        else:
+            if self.act_include is None:
+                self.act_include = self.input_type(temp=False, input_subs=self.input_subs)
+            action = self.act_include
+
+        eval_result = self.func.evaulate(action, assumption=assumption)
+        if self.reference:
+            presence = Bool_Terminal(action.presence)
+            text_ref[presence] = self.reference
+        else:
+            presence = action.presence
+        application_res = AND(presence, eval_result)
+        if proof_writer and not self.proof_derived:
+            proof_writer.derive_exists_rule(self, action, application_res)
+            self.proof_derived = True
+
+        base_constraint = encode(application_res,
                                  assumption=assumption, include_new_act=include_new_act, exception=exception,
-                                 disable=disable)
+                                 disable=disable, proof_writer=proof_writer)
+
         if include_new_act:
             Exists.new_included.add(action)
         elif not include_new_act and action == self.act_non_include and action != self.act_include:
@@ -1494,9 +1666,14 @@ class Exists(Operator):
 
     def invert(self):
         if self.op is None:
-            self.op = Forall(self.input_type, invert(self.func))
+            self.op = Forall(self.input_type, invert(self.func), reference=self.reference)
             self.op.op = self
         return self.op
+
+    def to_string(self):
+        return "EXISTS {}: {}. ({}_presence & {})".format(self.print_act.print_name, self.input_type.action_name,
+                                                          self.print_act.print_name,
+                                                          self.func.to_string(self.print_act))
 
     def generalize_encode(self):
         action = self.input_type(temp=True)
@@ -1504,6 +1681,11 @@ class Exists(Operator):
 
     def to_DNF(self):
         raise NotImplementedError("DNF for quantified formula is not ready")
+
+    def get_print_statement(self):
+        if not self.print_statement:
+            self.print_statement = self.func.evaulate(self.print_act)
+        return self.print_statement
 
 
 def add_forall_defs(solver):
@@ -1519,11 +1701,17 @@ class C_Summation(Arth_Operator):
         self.arg_list = _polymorph_args_to_tuple(args)
         self.op = None
 
-    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None):
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
         starting = Int(0)
         for arg in self.arg_list:
             starting += (encode(arg, assumption=assumption, include_new_act=include_new_act, exception=exception,
-                                disable=disable))
+                                disable=disable, proof_writer=proof_writer))
+        return starting
+
+    def fol_encode(self):
+        starting = Int(0)
+        for arg in self.arg_list:
+            starting += (fol_encode(arg))
         return starting
 
     def invert(self):
@@ -1709,7 +1897,8 @@ class _SUMObject(Action):
     snap_shot = []
 
     def __init__(self, input_type, value_func, filter_func, temp=False, is_count=False, input_subs=None, pos=True,
-                 neg=True):
+                 neg=True,
+                 print_only=False):
         self.input_type = input_type
         self.value_func = value_func
         self.filter_func = filter_func
@@ -1739,11 +1928,11 @@ class _SUMObject(Action):
 
         self.min_var = None
         self.under_var = None
-
-        if not temp:
-            type(self).collect_list.append(self)
-        else:
-            type(self).temp_collection_set.add(self)
+        if not print_only:
+            if not temp:
+                type(self).collect_list.append(self)
+            else:
+                type(self).temp_collection_set.add(self)
 
     def sym_subs(self, other, context):
         subs_dict = dict([(self.presence, other.presence), (self.value, other.value)])
@@ -1877,7 +2066,7 @@ class _SUMObject(Action):
         self.is_disabled = True
         self.presence = FALSE()
 
-    def get_record(self, model, debug=True):
+    def get_record(self, model, debug=True, mask=None):
         if debug:
             pars = "({})".format(', '.join(
                 ["{}={}".format(str(getattr(self, attr)), str(model.get_py_value(getattr(self, attr)))) for attr in
@@ -1946,7 +2135,7 @@ class Summation(Arth_Operator):
         self.under_var = None
         self.inv_init = False
         self.parent_info = trigger_act
-        self.is_count = is_count or self.value_func.procedure == ret_one
+        self.is_count = is_count
         self.input_subs = input_subs
         Summation.collections.append(self)
         Summation.frontier.append(self)
@@ -1973,7 +2162,7 @@ class Summation(Arth_Operator):
                 # print("add assertion add_inv {}".format(serialize(Implies(Not(self.parent_info.presence), Not(self.get_action().presence)))))
             # solver.add_assertion(Implies(Not(self.get_action().presence), EQ(self.get_action().value, self.under_value)))
 
-    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None):
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
         if not include_new_act:
             if self.act_include is not None:
                 action = self.act_include
@@ -2118,7 +2307,7 @@ class Forall(Operator):
     count = 0
     pending_defs = OrderedSet()
 
-    def __init__(self, input_type, func):
+    def __init__(self, input_type, func, reference=None, proof_required= False):
         super().__init__()
         if not isinstance(func, Function):
             raise illFormedFormulaException("Exists: {} is not a Function".format(func))
@@ -2128,19 +2317,77 @@ class Forall(Operator):
         self.var = Symbol("forall_{}".format(Forall.count))
         self.considered = OrderedSet()
         Forall.count += 1
+        if self.input_type != _SUMObject and proof_required:
+            self.print_act = self.input_type(print_only=True)
+        else:
+            self.print_act = None
+        self.print_statement = None
+        self.reference = reference
+        self.proof_hint = None
+        self.rid = None
+        self.consider_op = False
+        self.fol_object = None
 
-    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None):
+    def clear(self):
+        super(Forall, self).clear()
+        self.op = None
+        self.print_statement = None
+        self.considered = OrderedSet()
+        self.func.clear()
+        self.proof_hint = None
+        self.rid = None
+        self.consider_op = False
+        self.fol_object = None
+
+    def fol_encode(self):
+        if not self.fol_object:
+            self.fol_object = self.input_type()
+
+        eval_result = self.func.evaulate(self.fol_object)
+        application_res = Implication(self.fol_object.fol_presence, eval_result)
+        base_constraint = fol_encode(application_res)
+        base_constraint = substitute(base_constraint, {self.fol_object.presence:self.fol_object.fol_presence})
+        quantified = PForall(self.fol_object.named_attr, base_constraint)
+        return quantified
+
+    def encode(self, assumption=False, include_new_act=False, exception=None, disable=None, proof_writer=None):
         constraint = []
         # base construction
         consider_exception = not exception is None
+
+        if self.input_type != _SUMObject:
+            op = self.invert()
+            op_constraint = op.get_holding_obj(assumption=False, include_new_act=False, exception=None, disable=None,
+                                               proof_writer=None)
+            if not self.consider_op:
+                Forall.pending_defs.add(Implication(self.var, Not(op_constraint.presence)))
+                self.consider_op = True
+
         for action in self.input_type.snap_shot:
             if not action.disabled() and ((not consider_exception) or (not action in exception)):
-                base_constraint = encode(Implication(action.presence, self.func.evaulate(action)),
+                eval_func = self.func.evaulate(action)
+                if self.reference:
+                    presence = Bool_Terminal(action.presence)
+                    text_ref[presence] = self.reference
+                else:
+                    presence = action.presence
+
+                child_res = Implication(presence, eval_func)
+                if not disable and proof_writer and action not in self.considered:
+                    proof_writer.derive_forall_rule(self, action, child_res)
+
+                base_constraint = encode(child_res,
                                          assumption=assumption, include_new_act=include_new_act, exception=exception,
-                                         disable=disable)
+                                         disable=disable, proof_writer=proof_writer)
+
+                # dual_response = Implication(eval_func, presence)
+                # dual_constraint = encode(dual_response,
+                #                          assumption=assumption, include_new_act=include_new_act, exception=exception,
+                #                          disable=disable, proof_writer=proof_writer)
+
                 if not disable:
                     if action not in self.considered:
-                        Forall.pending_defs.add(Implies(self.var, base_constraint))
+                        Forall.pending_defs.add(Implication(self.var, base_constraint))
                         self.considered.add(action)
                     else:
                         # assert (Implies(self.var, base_constraint) in Forall.pending_defs)
@@ -2155,8 +2402,9 @@ class Forall(Operator):
 
     def invert(self):
         if self.op is None:
-            self.op = Exists(self.input_type, invert(self.func))
+            self.op = Exists(self.input_type, invert(self.func), reference=self.reference)
             self.op.op = self
+        assert isinstance(self.op, Exists)
         return self.op
 
     def to_DNF(self):
@@ -2167,6 +2415,16 @@ class Forall(Operator):
 
     def __hash__(self):
         return hash(self.__repr__())
+
+    def to_string(self):
+        return "Forall {}: {}. ( (! {}_presence) | {})".format(self.print_act.print_name, self.input_type.action_name,
+                                                               self.print_act.print_name,
+                                                               self.func.to_string(self.print_act))
+
+    def get_print_statement(self):
+        if not self.print_statement:
+            self.print_statement = self.func.evaulate(self.print_act)
+        return self.print_statement
 
 
 def create_control_variable(arg):
@@ -2379,11 +2637,11 @@ def inverse_mapping(op):
 def next_sum(s, action):
     if not s.child_sum:
         if s.is_count:
-            child_sum = Count(s.input_type, lambda action1: AND(s.filter_func.evaulate(action1),
+            child_sum = Count(s.input_type, lambda action1, action=action, s=s: AND(s.filter_func.evaulate(action1),
                                                                 NEQ(action1, action)
                                                                 ), input_subs=s.input_subs)
         else:
-            child_sum = Summation(s.input_type, s.value_func, _func(lambda action1: AND(s.filter_func.evaulate(action1),
+            child_sum = Summation(s.input_type, s.value_func, _func(lambda action1, action=action, s=s: AND(s.filter_func.evaulate(action1),
                                                                                         NEQ(action1, action))),
                                   input_subs=s.input_subs)
         child_sum.parent_info = s
@@ -2423,11 +2681,11 @@ def next_sum(s, action):
 def next_bcr_sum(s, action):
     if not s.child_sum:
         if s.is_count:
-            child_sum = Count(s.input_type, lambda action1: AND(s.filter_func.evaulate(action1),
+            child_sum = Count(s.input_type, lambda action1, action= action, s=s: AND(s.filter_func.evaulate(action1),
                                                                 NEQ(action1, action)
                                                                 ), input_subs=s.input_subs)
         else:
-            child_sum = Summation(s.input_type, s.value_func, _func(lambda action1: AND(s.filter_func.evaulate(action1),
+            child_sum = Summation(s.input_type, s.value_func, _func(lambda action1, action=action, s=s: AND(s.filter_func.evaulate(action1),
                                                                                         NEQ(action1, action))),
                                   input_subs=s.input_subs)
         child_sum.parent_info = s
@@ -2448,7 +2706,7 @@ def next_bcr_sum(s, action):
         return AND(s.filter_func.evaulate(action),
                    connect_term,
                    Equals(s.time, action.time),
-                   forall(s.input_type, lambda other: Implication(s.filter_func.evaulate(other), other <= action))
+                   forall(s.input_type, lambda other, s=s: Implication(s.filter_func.evaulate(other), other <= action))
                    )
     else:
         value1 = s.value_func.evaulate(action)
@@ -2461,7 +2719,7 @@ def next_bcr_sum(s, action):
         return AND(s.filter_func.evaulate(action), value1 > Int(0),
                    connect_term,
                    Equals(s.time, action.time),
-                   forall(s.input_type, lambda other: Implication(s.filter_func.evaulate(other),
+                   forall(s.input_type, lambda other, s=s, value1= value1: Implication(s.filter_func.evaulate(other),
                                                                   s.value_func.evaulate(other) <= value1))
                    )
 

@@ -23,106 +23,106 @@ def run_exp(command_header):
     amount = 10
     time = 4
     bound = 10
-    for i in range(3):
-        outfile = "trans_domain_{}.py".format(i)
-        rule_file = "trans_req_rule_{}.py".format(i)
-        with open(outfile, 'w') as out_f:
-            out_f.write(domain_content.format(eid=eid, cid=cid, tid=tid, amount=amount, time=time))
-        for j in range(1, 4):
-            with open(rule_file, 'w') as rule_f:
-                rule_f.write(
-                    rule_conetent.format(domain_file=outfile[:-3], i=j, vol_bound=bound))
-
-            result_file = "results/trans_{}_rule_{}.txt".format(i, j)
-            print(result_file)
-            with open(result_file, 'w') as f:
-                try:
-                    result = subprocess.run(command_header + [rule_file], stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE,
-                                            universal_newlines=True,
-                                            timeout=timeout)
-                except subprocess.TimeoutExpired as t:
-                    f.write("timeout {}".format(timeout))
-                    continue
-
-                f.write(result.stdout)
-                f.write(result.stderr)
-
-            with open(rule_file, 'w') as rule_f:
-                rule_f.write(
-                    rule_conetent.format(domain_file=outfile[:-3], i=j, vol_bound=bound))
-
-            result_file = "results/trans_{}_rule_opt_{}.txt".format(i, j)
-            print(result_file)
-            with open(result_file, 'w') as f:
-                try:
-                    result = subprocess.run(command_header + [rule_file, "t"], stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE,
-                                            universal_newlines=True,
-                                            timeout=timeout)
-                except subprocess.TimeoutExpired as t:
-                    f.write("timeout {}".format(timeout))
-                    continue
-
-                f.write(result.stdout)
-                f.write(result.stderr)
-
-            result_file = "results/trans_{}_rule_opt_{}_restart.txt".format(i, j)
-            print(result_file)
-            with open(result_file, 'w') as f:
-                try:
-                    result = subprocess.run(command_header + [rule_file, "t", "t"], stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE,
-                                            universal_newlines=True,
-                                            timeout=timeout)
-                except subprocess.TimeoutExpired as t:
-                    f.write("timeout {}".format(timeout))
-                    continue
-
-                f.write(result.stdout)
-                f.write(result.stderr)
-
-            result_file = "results/trans_{}_rule_opt_{}_bcr.txt".format(i, j)
-            print(result_file)
-            with open(result_file, 'w') as f:
-                try:
-                    result = subprocess.run(command_header + [rule_file, "t", "f", "t"], stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE,
-                                            universal_newlines=True,
-                                            timeout=timeout)
-                except subprocess.TimeoutExpired as t:
-                    f.write("timeout {}".format(timeout))
-                    continue
-
-                f.write(result.stdout)
-                f.write(result.stderr)
-
-
-
-            result_file = "results/trans_{}_rule_opt_{}_all.txt".format(i, j)
-            print(result_file)
-            with open(result_file, 'w') as f:
-                try:
-                    result = subprocess.run(command_header + [rule_file, "t", "t", "t"], stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE,
-                                            universal_newlines=True,
-                                            timeout=timeout)
-                except subprocess.TimeoutExpired as t:
-                    f.write("timeout {}".format(timeout))
-                    continue
-
-                f.write(result.stdout)
-                f.write(result.stderr)
-
-        eid = eid * 10
-        cid = cid * 10
-        tid = tid * 10
-        amount = amount * 10
-        bound = bound * 10
-        time = time * 10
+    # for i in range(3):
+    #     outfile = "trans_domain_{}.py".format(i)
+    #     rule_file = "trans_req_rule_{}.py".format(i)
+    #     with open(outfile, 'w') as out_f:
+    #         out_f.write(domain_content.format(eid=eid, cid=cid, tid=tid, amount=amount, time=time))
+    #     for j in range(1, 4):
+    #         with open(rule_file, 'w') as rule_f:
+    #             rule_f.write(
+    #                 rule_conetent.format(domain_file=outfile[:-3], i=j, vol_bound=bound))
+    #
+    #         result_file = "results/trans_{}_rule_{}.txt".format(i, j)
+    #         print(result_file)
+    #         with open(result_file, 'w') as f:
+    #             try:
+    #                 result = subprocess.run(command_header + [rule_file], stdout=subprocess.PIPE,
+    #                                         stderr=subprocess.PIPE,
+    #                                         universal_newlines=True,
+    #                                         timeout=timeout)
+    #             except subprocess.TimeoutExpired as t:
+    #                 f.write("timeout {}".format(timeout))
+    #                 continue
+    #
+    #             f.write(result.stdout)
+    #             f.write(result.stderr)
+    #
+    #         with open(rule_file, 'w') as rule_f:
+    #             rule_f.write(
+    #                 rule_conetent.format(domain_file=outfile[:-3], i=j, vol_bound=bound))
+    #
+    #         result_file = "results/trans_{}_rule_opt_{}.txt".format(i, j)
+    #         print(result_file)
+    #         with open(result_file, 'w') as f:
+    #             try:
+    #                 result = subprocess.run(command_header + [rule_file, "t"], stdout=subprocess.PIPE,
+    #                                         stderr=subprocess.PIPE,
+    #                                         universal_newlines=True,
+    #                                         timeout=timeout)
+    #             except subprocess.TimeoutExpired as t:
+    #                 f.write("timeout {}".format(timeout))
+    #                 continue
+    #
+    #             f.write(result.stdout)
+    #             f.write(result.stderr)
+    #
+    #         result_file = "results/trans_{}_rule_opt_{}_restart.txt".format(i, j)
+    #         print(result_file)
+    #         with open(result_file, 'w') as f:
+    #             try:
+    #                 result = subprocess.run(command_header + [rule_file, "t", "t"], stdout=subprocess.PIPE,
+    #                                         stderr=subprocess.PIPE,
+    #                                         universal_newlines=True,
+    #                                         timeout=timeout)
+    #             except subprocess.TimeoutExpired as t:
+    #                 f.write("timeout {}".format(timeout))
+    #                 continue
+    #
+    #             f.write(result.stdout)
+    #             f.write(result.stderr)
+    #
+    #         result_file = "results/trans_{}_rule_opt_{}_bcr.txt".format(i, j)
+    #         print(result_file)
+    #         with open(result_file, 'w') as f:
+    #             try:
+    #                 result = subprocess.run(command_header + [rule_file, "t", "f", "t"], stdout=subprocess.PIPE,
+    #                                         stderr=subprocess.PIPE,
+    #                                         universal_newlines=True,
+    #                                         timeout=timeout)
+    #             except subprocess.TimeoutExpired as t:
+    #                 f.write("timeout {}".format(timeout))
+    #                 continue
+    #
+    #             f.write(result.stdout)
+    #             f.write(result.stderr)
+    #
+    #
+    #
+    #         result_file = "results/trans_{}_rule_opt_{}_all.txt".format(i, j)
+    #         print(result_file)
+    #         with open(result_file, 'w') as f:
+    #             try:
+    #                 result = subprocess.run(command_header + [rule_file, "t", "t", "t"], stdout=subprocess.PIPE,
+    #                                         stderr=subprocess.PIPE,
+    #                                         universal_newlines=True,
+    #                                         timeout=timeout)
+    #             except subprocess.TimeoutExpired as t:
+    #                 f.write("timeout {}".format(timeout))
+    #                 continue
+    #
+    #             f.write(result.stdout)
+    #             f.write(result.stderr)
+    #
+    #     eid = eid * 10
+    #     cid = cid * 10
+    #     tid = tid * 10
+    #     amount = amount * 10
+    #     bound = bound * 10
+    #     time = time * 10
 
     outfile = "trans_domain_unbound.py"
-    rule_file = "trans_req_rule_unbound.py"
+    rule_file = "trans_req_rule_unbound_fol.py"
     with open(outfile, 'w') as out_f:
         out_f.write(domain_content.format(eid=None, cid=None, tid=None, amount=None, time=None))
     for j in range(1, 4):
@@ -130,11 +130,11 @@ def run_exp(command_header):
             rule_f.write(
                 rule_conetent.format(domain_file=outfile[:-3], i=j, vol_bound=10000))
 
-        result_file = "results/trans_unbound_rule_{}.txt".format(j)
+        result_file = "results/trans_unbound_rule_{}_fol.txt".format(j)
         print(result_file)
         with open(result_file, 'w') as f:
             try:
-                result = subprocess.run(command_header + [rule_file], stdout=subprocess.PIPE,
+                result = subprocess.run(command_header + [rule_file, "f", "f", "t"], stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         universal_newlines=True,
                                         timeout=timeout)
@@ -145,70 +145,57 @@ def run_exp(command_header):
             f.write(result.stdout)
             f.write(result.stderr)
 
-        with open(rule_file, 'w') as rule_f:
-            rule_f.write(
-                rule_conetent.format(domain_file=outfile[:-3], i=j, vol_bound=10000))
-
-        result_file = "results/trans_unbound_rule_opt_{}.txt".format(j)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [rule_file, "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                continue
-
-            f.write(result.stdout)
-            f.write(result.stderr)
-
-        result_file = "results/trans_unbound_rule_opt_{}_restart.txt".format(j)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [rule_file, "t", "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                continue
-
-            f.write(result.stdout)
-            f.write(result.stderr)
-
-        result_file = "results/trans_unbound_rule_opt_{}_bcr.txt".format(j)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [rule_file, "t", "f", "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                continue
-
-            f.write(result.stdout)
-            f.write(result.stderr)
+        # with open(rule_file, 'w') as rule_f:
+        #     rule_f.write(
+        #         rule_conetent.format(domain_file=outfile[:-3], i=j, vol_bound=10000))
+        #
+        # result_file = "results/trans_unbound_rule_opt_{}.txt".format(j)
+        # print(result_file)
+        # with open(result_file, 'w') as f:
+        #     try:
+        #         result = subprocess.run(command_header + [rule_file, "t"], stdout=subprocess.PIPE,
+        #                                 stderr=subprocess.PIPE,
+        #                                 universal_newlines=True,
+        #                                 timeout=timeout)
+        #     except subprocess.TimeoutExpired as t:
+        #         f.write("timeout {}".format(timeout))
+        #         continue
+        #
+        #     f.write(result.stdout)
+        #     f.write(result.stderr)
+        #
+        # result_file = "results/trans_unbound_rule_opt_{}_restart.txt".format(j)
+        # print(result_file)
+        # with open(result_file, 'w') as f:
+        #     try:
+        #         result = subprocess.run(command_header + [rule_file, "t", "t"], stdout=subprocess.PIPE,
+        #                                 stderr=subprocess.PIPE,
+        #                                 universal_newlines=True,
+        #                                 timeout=timeout)
+        #     except subprocess.TimeoutExpired as t:
+        #         f.write("timeout {}".format(timeout))
+        #         continue
+        #
+        #     f.write(result.stdout)
+        #     f.write(result.stderr)
 
 
-        result_file = "results/trans_unbound_rule_opt_{}_all.txt".format(j)
-        print(result_file)
-        with open(result_file, 'w') as f:
-            try:
-                result = subprocess.run(command_header + [rule_file, "t", "t", "t"], stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        timeout=timeout)
-            except subprocess.TimeoutExpired as t:
-                f.write("timeout {}".format(timeout))
-                continue
 
-            f.write(result.stdout)
-            f.write(result.stderr)
+
+        # result_file = "results/trans_unbound_rule_opt_{}_all.txt".format(j)
+        # print(result_file)
+        # with open(result_file, 'w') as f:
+        #     try:
+        #         result = subprocess.run(command_header + [rule_file, "t", "t", "t"], stdout=subprocess.PIPE,
+        #                                 stderr=subprocess.PIPE,
+        #                                 universal_newlines=True,
+        #                                 timeout=timeout)
+        #     except subprocess.TimeoutExpired as t:
+        #         f.write("timeout {}".format(timeout))
+        #         continue
+        #
+        #     f.write(result.stdout)
+        #     f.write(result.stderr)
 
 
 if __name__ == "__main__":
