@@ -1,4 +1,4 @@
-# This is the anonymous repository for TOOL
+# This is the anonymous repository for F-BSC
 
 ### prerequisite:
 1. Python 3.5 and later
@@ -18,7 +18,7 @@
    `pip install ordered-set` or
    `pip3 install ordered-set`
 
-6. If you would like to compare TOOL against cvc5 or vampire, please download their executables
+6. If you would like to compare F-BSC against cvc5 or vampire, please download their executables
    
     cvc5: https://cvc5.github.io/downloads.html
    
@@ -47,7 +47,7 @@
 To launch experiment for case studies with aggregations, run `python3 benchmark_aggr.py`
 To launch experiment for case studies without aggregations, run `python3 benchmark_non_aggr.py`
 If (memtime) is not installed, change variable `memtime_available = False` before running the script.
-If you wish to compare TOOL against z3, cvc5, and vampire, please change 
+If you wish to compare F-BSC against z3, cvc5, and vampire, please change 
 
 `z3 = True`,   `cvc5 = True`, and  `vampire = True` in both experiment scripts.
 
