@@ -1,4 +1,4 @@
-# This is the anonymous repo for TOOL
+# This is the anonymous repository for TOOL
 
 ### prerequisite:
 1. Python 3.5 and later
@@ -25,7 +25,7 @@
 
    
 
-### repo Structure
+### repository structure
 
 
     1. Analyzer contains the implementation of the bounded satisfiability checking algorithm 
