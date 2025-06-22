@@ -1,4 +1,4 @@
-# This is the anonymous repository for F-BSC
+# This is the repository for LEGOS-A
 
 ### prerequisite:
 1. Python 3.5 and later
